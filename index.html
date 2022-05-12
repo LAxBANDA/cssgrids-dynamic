@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Grid Dynamics</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+    <link rel="stylesheet" href="grid.css">
+</head>
+
+<body>
+
+    <div id="app" style="height: 100vh;">
+        <div class="grid-container">
+            <div v-for="(item, index) in model" :key="index" :class="`item${index+1}`">
+                {{ index + 1 }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                model: [
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 4,
+                        rows: 1 ,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1 ,
+                    },
+                ],
+                model1: [
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 4,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                ],
+                model2: [
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 4,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 4,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 4,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 2,
+                        rows: 2,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                    {
+                        cols: 2,
+                        rows: 1,
+                    },
+                ],
+                max_cols: 10
+            },
+            mounted() {
+                console.log(this.generateGrids())
+            },
+            methods: {
+                generateGrids() {
+                    let actual_col = 1;
+                    let actual_row = 1;
+                    let extra_cols = 0;
+                    let reservedColumnsPos = [];
+                    const count = n => String((Math.abs(n))).length;
+
+                    this.model.forEach((chart, index, array) => {
+                        const itemIndex = index + 1;
+
+                        const isColumnReserved = reservedColumnsPos.indexOf(actual_col)
+                        if(isColumnReserved > -1){
+                            console.log('isColumnReserved', isColumnReserved, reservedColumnsPos)
+                            actual_col += 2; // Sumamos columnas
+                            reservedColumnsPos.splice(isColumnReserved, 1)
+
+                            const isNewRow = (count(actual_col) > 1 && ((actual_col % this.max_cols) === 1));
+
+                            if (isNewRow) {
+                                console.log('nueva row', actual_col);
+                                actual_col = 1;
+                                actual_row++
+                            }
+                        }
+
+                        // filas
+                        const gridRowStart = actual_row;
+                        const gridRowEnd = actual_row + chart.rows;
+                        const gridRow = `${actual_row}/${gridRowEnd}`;
+
+                        // columnas
+                        const gridColumnStart = actual_col;
+                        const girdColumnEnd = gridColumnStart + chart.cols;
+                        const gridColumn = `${gridColumnStart}/${girdColumnEnd}`;
+
+                        // Verificar si es un chart que ocupa otra col en la siguiente row
+                        const rowSpaces = gridRowEnd - gridRowStart > 1;
+
+                        if (rowSpaces) {
+                            reservedColumnsPos.push(actual_col);
+                            console.log('guardar pos', reservedColumnsPos[reservedColumnsPos.length-1])
+                        };
+
+                        // Dom
+                        const domElement = document.querySelector('.item' + itemIndex);
+                        domElement.style.gridColumn = gridColumn;
+                        domElement.style.gridRow = gridRow;
+
+                        // Logs
+                        console.log(`item ${itemIndex}: grid-column: ${gridColumn};grid-row:${gridRow};row-spaces:${rowSpaces}`);
+
+                        // Next
+                        actual_col = actual_col + chart.cols;
+                        const isNewRow = (count(actual_col) > 1 && ((actual_col % this.max_cols) === 1));
+
+                        if (isNewRow) {
+                            console.log('nueva row', actual_col);
+                            actual_col = 1;
+                            actual_row++
+                        }
+                    })
+
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>
